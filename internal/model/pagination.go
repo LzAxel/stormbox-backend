@@ -17,7 +17,7 @@ type Pagination struct {
 type FullPagination struct {
 	Offset uint64 `json:"offset"`
 	Limit  uint64 `json:"limit"`
-	Count  uint64 `json:"count"`
+	Count  int    `json:"count"`
 	Total  uint64 `json:"total"`
 }
 
@@ -32,11 +32,11 @@ func NewPagination(offset, limit uint64) (Pagination, error) {
 	}, nil
 }
 
-func (p *Pagination) ToFullPagination(total uint64) FullPagination {
+func (p *Pagination) ToFullPagination(total uint64, count int) FullPagination {
 	return FullPagination{
 		Offset: p.Offset,
 		Limit:  p.Limit,
-		Count:  p.Limit,
+		Count:  count,
 		Total:  total,
 	}
 }

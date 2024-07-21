@@ -17,7 +17,7 @@ func (h *Handler) WithPagination() echo.MiddlewareFunc {
 			}
 			offset, err := strconv.ParseUint(offsetParam, 10, 64)
 			if err != nil {
-				return apperror.ErrInvalidPaginationOffset
+				return h.handleAppError(c, apperror.ErrInvalidPaginationOffset)
 			}
 
 			limitParam := c.QueryParam("limit")
@@ -26,7 +26,7 @@ func (h *Handler) WithPagination() echo.MiddlewareFunc {
 			}
 			limit, err := strconv.ParseUint(limitParam, 10, 64)
 			if err != nil {
-				return apperror.ErrInvalidPaginationLimit
+				return h.handleAppError(c, apperror.ErrInvalidPaginationLimit)
 			}
 
 			pagination, err := model.NewPagination(offset, limit)
@@ -35,16 +35,12 @@ func (h *Handler) WithPagination() echo.MiddlewareFunc {
 			}
 			c.Set("pagination", pagination)
 
-			if err := next(c); err != nil {
-				c.Error(err)
-			}
 			h.logger.Debug("pagination", map[string]interface{}{
 				"offset":     offset,
 				"limit":      limit,
 				"request_id": c.Response().Header().Get(echo.HeaderXRequestID),
 			})
-
-			return nil
+			return next(c)
 		}
 	}
 }

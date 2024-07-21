@@ -55,5 +55,5 @@ func (u *UserService) GetAll(ctx context.Context, pagination model.Pagination) (
 		viewUsers[i] = user.ToView()
 	}
 
-	return viewUsers, pagination.ToFullPagination(total), nil
+	return viewUsers, pagination.ToFullPagination(total, len(users)), nil
 }
