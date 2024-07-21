@@ -1,0 +1,4 @@
+bin/
+postgres-data/
+configs/
+.idea

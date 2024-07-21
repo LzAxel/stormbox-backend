@@ -1,0 +1,18 @@
+jwt:
+  secret: aboba
+  accessTokenTTL: 5m
+  refreshTokenTTL: 50m
+  issuer: chat-backend
+app:
+  isDev: true
+  isTesting: false
+  logLevel: DEBUG
+server:
+  host: localhost
+  port: 8000
+postgres:
+  host: localhost
+  port: 5434
+  database: chat
+  user: postgres
+  password: postgres
