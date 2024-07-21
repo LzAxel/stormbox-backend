@@ -16,14 +16,21 @@ type User interface {
 	Delete(ctx context.Context, id uint64) error
 }
 
+type Friendship interface {
+	Create(ctx context.Context, friendship model.CreateFriendshipDTO) (model.Friendship, error)
+	GetAllByUserID(ctx context.Context, pagination model.Pagination, userID uint64) ([]model.User, uint64, error)
+}
+
 type Repository struct {
 	logger logger.Logger
 	User
+	Friendship
 }
 
 func New(psql *sqlx.DB, logger logger.Logger) *Repository {
 	return &Repository{
-		logger: logger,
-		User:   postgresql.NewUserPostgres(psql),
+		logger:     logger,
+		User:       postgresql.NewUserPostgres(psql),
+		Friendship: postgresql.NewFriendshipPostgres(psql),
 	}
 }

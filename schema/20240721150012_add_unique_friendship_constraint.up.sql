@@ -1,0 +1,1 @@
+ALTER TABLE friendships ADD CONSTRAINT unique_friendships UNIQUE (user_id, friend_id);

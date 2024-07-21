@@ -19,9 +19,15 @@ type User interface {
 	GetAll(ctx context.Context, pagination model.Pagination) ([]model.ViewUser, model.FullPagination, error)
 }
 
+type Friendship interface {
+	GetByUserID(ctx context.Context, pagination model.Pagination, userID uint64) ([]model.ViewUser, model.FullPagination, error)
+	Create(ctx context.Context, friendship model.CreateFriendshipDTO) error
+}
+
 type Services struct {
 	User
 	Authorization
+	Friendship
 }
 
 func New(
@@ -31,5 +37,6 @@ func New(
 	return &Services{
 		User:          NewUserService(repository.User),
 		Authorization: NewAuthorizationService(jwt, repository.User),
+		Friendship:    NewFriendshipService(repository.Friendship),
 	}
 }

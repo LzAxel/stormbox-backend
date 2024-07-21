@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	UsersTable    = "users"
-	ChatsTable    = "friendships"
-	MessagesTable = "messages"
+	UsersTable       = "users"
+	FriendshipsTable = "friendships"
+	MessagesTable    = "messages"
 )
 
 func GetPgError(err error) *pgconn.PgError {

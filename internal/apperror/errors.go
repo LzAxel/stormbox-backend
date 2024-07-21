@@ -15,6 +15,10 @@ var (
 	ErrInvalidRefreshToken    = New(ErrorTypeBadRequest, "invalid refresh token", nil)
 	ErrTokenExpired           = New(ErrorTypeUnauthorized, "token expired", nil)
 	ErrInvalidLoginOrPassword = New(ErrorTypeUnauthorized, "invalid login or password", nil)
+
+	// Friendship
+	ErrFriendshipAlreadyExists = New(ErrorTypeConflict, "friendship already exists", nil)
+	ErrCannotFriendSelf        = New(ErrorTypeBadRequest, "cannot create friendship with yourself", nil)
 )
 
 func GetErrMaxPaginationLimit(maxLimit uint64) error {

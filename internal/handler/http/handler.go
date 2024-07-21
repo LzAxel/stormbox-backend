@@ -72,6 +72,12 @@ func (h *Handler) initRoutes() {
 		user.GET("/:id", h.getUserByID)
 		user.GET("/self", h.getSelfUser)
 	}
+
+	friendships := v1.Group("/friendships", h.Authorized())
+	{
+		friendships.GET("/my", h.getMyFriendships)
+		friendships.POST("", h.AddFriend)
+	}
 }
 
 func (h *Handler) Stop(ctx context.Context) error {
