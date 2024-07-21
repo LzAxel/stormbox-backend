@@ -1,6 +1,7 @@
 package http
 
 import (
+	"chat-backend/internal/apperror"
 	"chat-backend/internal/model"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -46,7 +47,7 @@ func (h *Handler) AddFriend(c echo.Context) error {
 
 	err = c.Bind(&req)
 	if err != nil {
-		return h.handleAppError(c, err)
+		return h.handleAppError(c, apperror.ErrInvalidRequestBody)
 	}
 
 	err = h.services.Friendship.Create(c.Request().Context(), model.CreateFriendshipDTO{

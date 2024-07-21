@@ -19,12 +19,19 @@ type User interface {
 type Friendship interface {
 	Create(ctx context.Context, friendship model.CreateFriendshipDTO) (model.Friendship, error)
 	GetAllByUserID(ctx context.Context, pagination model.Pagination, userID uint64) ([]model.User, uint64, error)
+	IsFriends(ctx context.Context, userID, friendID uint64) (bool, error)
+}
+
+type Message interface {
+	Create(ctx context.Context, message model.CreateMessageDTO) (model.Message, error)
+	GetAllWithFriend(ctx context.Context, pagination model.Pagination, userID, friendID uint64) ([]model.Message, uint64, error)
 }
 
 type Repository struct {
 	logger logger.Logger
 	User
 	Friendship
+	Message
 }
 
 func New(psql *sqlx.DB, logger logger.Logger) *Repository {
@@ -32,5 +39,6 @@ func New(psql *sqlx.DB, logger logger.Logger) *Repository {
 		logger:     logger,
 		User:       postgresql.NewUserPostgres(psql),
 		Friendship: postgresql.NewFriendshipPostgres(psql),
+		Message:    postgresql.NewMessagePostgres(psql),
 	}
 }

@@ -97,3 +97,22 @@ func (f *FriendshipPostgres) Delete(ctx context.Context, userID, friendID uint64
 	}
 	return nil
 }
+
+func (f *FriendshipPostgres) IsFriends(ctx context.Context, userID, friendID uint64) (bool, error) {
+	var count int
+	query, args, err := squirrel.Select("COUNT(*)").
+		From(FriendshipsTable).
+		Where(squirrel.Or{
+			squirrel.And{squirrel.Eq{"user_id": userID}, squirrel.Eq{"friend_id": friendID}},
+			squirrel.And{squirrel.Eq{"user_id": friendID}, squirrel.Eq{"friend_id": userID}},
+		}).
+		PlaceholderFormat(squirrel.Dollar).ToSql()
+	if err != nil {
+		return false, fmt.Errorf("FriendshipPostgres.IsFriend: %w", err)
+	}
+	err = f.db.GetContext(ctx, &count, query, args...)
+	if err != nil {
+		return false, fmt.Errorf("FriendshipPostgres.IsFriend: %w", err)
+	}
+	return count > 0, nil
+}

@@ -1,6 +1,9 @@
 package apperror
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 var (
 	ErrInvalidPaginationLimit  = New(ErrorTypeBadRequest, "invalid pagination limit", nil)
@@ -19,7 +22,17 @@ var (
 	// Friendship
 	ErrFriendshipAlreadyExists = New(ErrorTypeConflict, "friendship already exists", nil)
 	ErrCannotFriendSelf        = New(ErrorTypeBadRequest, "cannot create friendship with yourself", nil)
+
+	// Message
+	ErrCanSendMessagesOnlyFriends = New(ErrorTypeForbidden, "can send messages only to friends", nil)
+
+	// Handler
+	ErrInvalidRequestBody = New(ErrorTypeBadRequest, "invalid request body", nil)
 )
+
+func GetErrInvalidParam(param string) error {
+	return New(ErrorTypeBadRequest, fmt.Sprintf("invalid '%s' value", param), nil)
+}
 
 func GetErrMaxPaginationLimit(maxLimit uint64) error {
 	return New(ErrorTypeBadRequest, "max pagination limit is "+strconv.FormatUint(maxLimit, 10), nil)

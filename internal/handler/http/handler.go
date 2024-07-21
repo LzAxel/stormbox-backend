@@ -75,8 +75,14 @@ func (h *Handler) initRoutes() {
 
 	friendships := v1.Group("/friendships", h.Authorized())
 	{
-		friendships.GET("/my", h.getMyFriendships)
+		friendships.GET("/my", h.getMyFriendships, h.WithPagination())
 		friendships.POST("", h.AddFriend)
+	}
+
+	messages := v1.Group("/messages", h.Authorized())
+	{
+		messages.GET("/friend/:id", h.getFriendMessages, h.WithPagination())
+		messages.POST("", h.sendMessage)
 	}
 }
 

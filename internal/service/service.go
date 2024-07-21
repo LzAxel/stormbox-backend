@@ -24,10 +24,16 @@ type Friendship interface {
 	Create(ctx context.Context, friendship model.CreateFriendshipDTO) error
 }
 
+type Message interface {
+	Create(ctx context.Context, message model.CreateMessageInput) (model.Message, error)
+	GetAllWithFriend(ctx context.Context, pagination model.Pagination, userID, friendID uint64) ([]model.ViewMessage, model.FullPagination, error)
+}
+
 type Services struct {
 	User
 	Authorization
 	Friendship
+	Message
 }
 
 func New(
@@ -38,5 +44,6 @@ func New(
 		User:          NewUserService(repository.User),
 		Authorization: NewAuthorizationService(jwt, repository.User),
 		Friendship:    NewFriendshipService(repository.Friendship),
+		Message:       NewMessageService(repository.Message, repository.Friendship),
 	}
 }
