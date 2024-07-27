@@ -9,8 +9,8 @@ import (
 
 type Authorization interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (jwt.TokenPair, error)
-	Login(ctx context.Context, input model.LoginInput) (jwt.TokenPair, error)
-	Register(ctx context.Context, input model.CreateUserInput) error
+	Login(ctx context.Context, input model.LoginInput) (model.ViewUser, jwt.TokenPair, error)
+	Register(ctx context.Context, input model.CreateUserInput) (model.ViewUser, jwt.TokenPair, error)
 }
 
 type User interface {

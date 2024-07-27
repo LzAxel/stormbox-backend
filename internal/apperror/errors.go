@@ -16,7 +16,8 @@ var (
 	// Auth
 	ErrInvalidAccessToken     = New(ErrorTypeUnauthorized, "invalid access token", nil)
 	ErrInvalidRefreshToken    = New(ErrorTypeBadRequest, "invalid refresh token", nil)
-	ErrTokenExpired           = New(ErrorTypeUnauthorized, "token expired", nil)
+	ErrAccessTokenExpired     = New(ErrorTypeUnauthorized, "access token expired", nil)
+	ErrRefreshTokenExpired    = New(ErrorTypeUnauthorized, "refresh token expired", nil)
 	ErrInvalidLoginOrPassword = New(ErrorTypeUnauthorized, "invalid login or password", nil)
 
 	// Friendship

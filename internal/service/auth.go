@@ -30,7 +30,7 @@ func (a *AuthorizationService) RefreshTokens(ctx context.Context, refreshToken s
 		case errors.Is(err, jwt.ErrInvalidToken) || errors.Is(err, jwt.ErrInvalidClaims):
 			return jwt.TokenPair{}, apperror.ErrInvalidRefreshToken
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return jwt.TokenPair{}, apperror.ErrTokenExpired
+			return jwt.TokenPair{}, apperror.ErrRefreshTokenExpired
 		}
 		return jwt.TokenPair{}, apperror.NewServiceError("RefreshTokens.ValidateToken", err)
 	}
@@ -43,31 +43,31 @@ func (a *AuthorizationService) RefreshTokens(ctx context.Context, refreshToken s
 	return tokenPair, err
 }
 
-func (a *AuthorizationService) Login(ctx context.Context, input model.LoginInput) (jwt.TokenPair, error) {
+func (a *AuthorizationService) Login(ctx context.Context, input model.LoginInput) (model.ViewUser, jwt.TokenPair, error) {
 	user, err := a.userRepo.GetByUsername(ctx, input.Username)
 	if err != nil {
 		if errors.Is(err, apperror.ErrUserNotFound) {
-			return jwt.TokenPair{}, apperror.ErrInvalidLoginOrPassword
+			return model.ViewUser{}, jwt.TokenPair{}, apperror.ErrInvalidLoginOrPassword
 		}
 
-		return jwt.TokenPair{}, apperror.NewDatabaseError("Login.GetByUsername", err)
+		return model.ViewUser{}, jwt.TokenPair{}, apperror.NewDatabaseError("Login.GetByUsername", err)
 	}
 
 	if err := hash.Compare(user.PasswordHash, input.Password); err != nil {
-		return jwt.TokenPair{}, apperror.ErrInvalidLoginOrPassword
+		return model.ViewUser{}, jwt.TokenPair{}, apperror.ErrInvalidLoginOrPassword
 	}
 
 	tokenPair, err := a.jwt.GeneratePair(user.ID)
 	if err != nil {
-		return jwt.TokenPair{}, apperror.NewServiceError("Login.GeneratePair", err)
+		return model.ViewUser{}, jwt.TokenPair{}, apperror.NewServiceError("Login.GeneratePair", err)
 	}
 
-	return tokenPair, err
+	return user.ToView(), tokenPair, err
 }
-func (a *AuthorizationService) Register(ctx context.Context, input model.CreateUserInput) error {
+func (a *AuthorizationService) Register(ctx context.Context, input model.CreateUserInput) (model.ViewUser, jwt.TokenPair, error) {
 	passwordHash, err := hash.Hash(input.Password)
 	if err != nil {
-		return err
+		return model.ViewUser{}, jwt.TokenPair{}, err
 	}
 
 	dto := model.CreateUserDTO{
@@ -78,13 +78,19 @@ func (a *AuthorizationService) Register(ctx context.Context, input model.CreateU
 		UpdatedAt:    clock.Now().UTC(),
 	}
 
-	if _, err := a.userRepo.Create(ctx, dto); err != nil {
+	user, err := a.userRepo.Create(ctx, dto)
+	if err != nil {
 		if apperror.IsAppError(err) {
-			return err
+			return model.ViewUser{}, jwt.TokenPair{}, err
 		}
 
-		return apperror.NewDatabaseError("Register.Create", err)
+		return model.ViewUser{}, jwt.TokenPair{}, apperror.NewDatabaseError("Register.Create", err)
 	}
 
-	return nil
+	tokenPair, err := a.jwt.GeneratePair(user.ID)
+	if err != nil {
+		return model.ViewUser{}, jwt.TokenPair{}, apperror.NewServiceError("Register.GeneratePair", err)
+	}
+
+	return user.ToView(), tokenPair, nil
 }

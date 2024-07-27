@@ -13,6 +13,10 @@ type signUpRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+type signUpResponse struct {
+	User  model.ViewUser `json:"user"`
+	Token tokensResponse `json:"token"`
+}
 
 func (h *Handler) signUp(ctx echo.Context) error {
 	var req signUpRequest
@@ -21,7 +25,7 @@ func (h *Handler) signUp(ctx echo.Context) error {
 		return apperror.New(apperror.ErrorTypeBadRequest, "invalid input", err)
 	}
 
-	err := h.services.Authorization.Register(ctx.Request().Context(), model.CreateUserInput{
+	user, tokenPair, err := h.services.Authorization.Register(ctx.Request().Context(), model.CreateUserInput{
 		Username: req.Username,
 		Password: req.Password,
 	})
@@ -29,17 +33,27 @@ func (h *Handler) signUp(ctx echo.Context) error {
 		return h.handleAppError(ctx, err)
 	}
 
-	return ProcessDataHTTPResponse(ctx, http.StatusCreated, nil)
+	return ProcessDataHTTPResponse(ctx, http.StatusOK, signUpResponse{
+		User: user,
+		Token: tokensResponse{
+			AccessToken:  tokenPair.AccessToken,
+			RefreshToken: tokenPair.RefreshToken,
+		},
+	})
 }
 
 type signInRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
-
-type tokenResponse struct {
+type tokensResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+}
+
+type signInResponse struct {
+	User  model.ViewUser `json:"user"`
+	Token tokensResponse `json:"token"`
 }
 
 func (h *Handler) signIn(ctx echo.Context) error {
@@ -49,7 +63,7 @@ func (h *Handler) signIn(ctx echo.Context) error {
 		return apperror.New(apperror.ErrorTypeBadRequest, "invalid input", err)
 	}
 
-	tokenPair, err := h.services.Authorization.Login(ctx.Request().Context(), model.LoginInput{
+	user, tokenPair, err := h.services.Authorization.Login(ctx.Request().Context(), model.LoginInput{
 		Username: req.Username,
 		Password: req.Password,
 	})
@@ -57,9 +71,12 @@ func (h *Handler) signIn(ctx echo.Context) error {
 		return h.handleAppError(ctx, err)
 	}
 
-	return ProcessDataHTTPResponse(ctx, http.StatusOK, tokenResponse{
-		AccessToken:  tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
+	return ProcessDataHTTPResponse(ctx, http.StatusOK, signInResponse{
+		User: user,
+		Token: tokensResponse{
+			AccessToken:  tokenPair.AccessToken,
+			RefreshToken: tokenPair.RefreshToken,
+		},
 	})
 }
 
@@ -78,7 +95,7 @@ func (h *Handler) refreshTokens(ctx echo.Context) error {
 	if err != nil {
 		return h.handleAppError(ctx, err)
 	}
-	return ProcessDataHTTPResponse(ctx, http.StatusOK, tokenResponse{
+	return ProcessDataHTTPResponse(ctx, http.StatusOK, tokensResponse{
 		AccessToken:  tokenPair.AccessToken,
 		RefreshToken: tokenPair.RefreshToken,
 	})
