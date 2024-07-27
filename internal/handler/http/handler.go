@@ -83,6 +83,7 @@ func (h *Handler) initRoutes() {
 	{
 		messages.GET("/friend/:id", h.getFriendMessages, h.WithPagination())
 		messages.POST("", h.sendMessage)
+		messages.GET("/updates", h.listenMessageUpdates)
 	}
 }
 
@@ -91,7 +92,8 @@ func (h *Handler) Stop(ctx context.Context) error {
 	return h.server.Shutdown(ctx)
 }
 
-func (h *Handler) Start() error {
+func (h *Handler) Start(ctx context.Context) error {
 	h.logger.Infof("starting server on %s:%d", h.config.Host, h.config.Port)
+	go h.handleMessages(ctx)
 	return h.server.Start(net.JoinHostPort(h.config.Host, strconv.Itoa(int(h.config.Port))))
 }

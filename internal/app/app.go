@@ -51,8 +51,8 @@ func New(config config.Config) *App {
 	}
 }
 
-func (app *App) Start() error {
-	if err := app.handler.Start(); err != nil {
+func (app *App) Start(ctx context.Context) error {
+	if err := app.handler.Start(ctx); err != nil {
 		app.logger.Errorf("failed to start app: %s", err)
 		return err
 	}

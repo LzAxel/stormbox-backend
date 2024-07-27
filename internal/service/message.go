@@ -20,21 +20,27 @@ func NewMessageService(repository repository.Message, friendRepo repository.Frie
 	}
 }
 
-func (s *MessageService) Create(ctx context.Context, message model.CreateMessageInput) (model.Message, error) {
+func (s *MessageService) Create(ctx context.Context, message model.CreateMessageInput) (model.ViewMessage, error) {
 	isFriends, err := s.friendRepo.IsFriends(ctx, message.SenderID, message.RecipientID)
 	if err != nil {
-		return model.Message{}, apperror.NewDatabaseError("MessageService.Create: checking if friends", err)
+		return model.ViewMessage{}, apperror.NewDatabaseError("MessageService.Create: checking if friends", err)
 	}
 	if !isFriends {
-		return model.Message{}, apperror.ErrCanSendMessagesOnlyFriends
+		return model.ViewMessage{}, apperror.ErrCanSendMessagesOnlyFriends
 	}
 
-	return s.repo.Create(ctx, model.CreateMessageDTO{
+	createdMessage, err := s.repo.Create(ctx, model.CreateMessageDTO{
 		SenderID:    message.SenderID,
 		RecipientID: message.RecipientID,
 		Content:     message.Content,
 		CreatedAt:   time.Now().UTC(),
 	})
+
+	if err != nil {
+		return model.ViewMessage{}, apperror.NewDatabaseError("MessageService.Create: creating message", err)
+	}
+
+	return createdMessage.ToView(), nil
 }
 
 func (s *MessageService) GetAllWithFriend(ctx context.Context, pagination model.Pagination, userID, friendID uint64) ([]model.ViewMessage, model.FullPagination, error) {

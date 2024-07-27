@@ -1,7 +1,7 @@
 jwt:
   secret: aboba
-  accessTokenTTL: 5h
-  refreshTokenTTL: 10h
+  accessTokenTTL: 30m
+  refreshTokenTTL: 48h
   issuer: chat-backend
 app:
   isDev: true

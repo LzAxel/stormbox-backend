@@ -19,7 +19,14 @@ func (h *Handler) Authorized() echo.MiddlewareFunc {
 			h.logger.Debug("auth middleware", map[string]interface{}{"auth_header": authHeader})
 			splitAuth := strings.Split(authHeader, " ")
 			if len(splitAuth) != 2 {
-				return h.handleAppError(c, apperror.ErrInvalidAccessToken)
+				if c.QueryParam("access_token") == "" {
+					return h.handleAppError(c, apperror.ErrInvalidAccessToken)
+				}
+
+				splitAuth = strings.Split("Bearer "+c.QueryParam("access_token"), " ")
+				if (len(splitAuth) != 2) || (splitAuth[0] != "Bearer") {
+					return h.handleAppError(c, apperror.ErrInvalidAccessToken)
+				}
 			}
 
 			claims, err := h.jwtValidator.ValidateToken(splitAuth[1])

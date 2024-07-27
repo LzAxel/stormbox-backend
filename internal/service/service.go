@@ -25,7 +25,7 @@ type Friendship interface {
 }
 
 type Message interface {
-	Create(ctx context.Context, message model.CreateMessageInput) (model.Message, error)
+	Create(ctx context.Context, message model.CreateMessageInput) (model.ViewMessage, error)
 	GetAllWithFriend(ctx context.Context, pagination model.Pagination, userID, friendID uint64) ([]model.ViewMessage, model.FullPagination, error)
 }
 
