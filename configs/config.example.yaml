@@ -1,0 +1,18 @@
+jwt:
+  secret:
+  accessTokenTTL:
+  refreshTokenTTL:
+  issuer:
+app:
+  isDev:
+  isTesting:
+  logLevel:
+server:
+  host:
+  port:
+postgres:
+  host:
+  port:
+  database:
+  user:
+  password:
